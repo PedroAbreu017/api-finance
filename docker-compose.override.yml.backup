@@ -1,0 +1,12 @@
+﻿# docker-compose.override.yml - Configurações de desenvolvimento (CORRIGIDO)
+services:
+  app:
+    volumes:
+      - .:/app
+      - /app/target
+    ports:
+      - "8080:8080"
+      - "5005:5005"  # Debug port
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker,dev
+      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005

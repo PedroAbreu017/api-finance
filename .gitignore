@@ -1,0 +1,60 @@
+# Maven
+target/
+*.class
+*.jar
+*.war
+
+# Wrapper
+.mvn/
+!mvnw
+!mvnw.cmd
+
+# Logs
+*.log
+logs/
+
+# Configs e segredos
+*.env
+.env*
+secrets/
+application-*.properties
+**/KeyVaultConfig*.java
+
+# IDEs
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.factorypath
+.settings/
+.sts4-cache/
+.apt_generated/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# Build tools
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-volumes/
+docker-logs.txt
+
+# Azure
+.azure/
+
+# Arquivos temporários
+*.tmp
+*.bak
+*.swp
