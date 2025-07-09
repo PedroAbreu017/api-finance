@@ -11,23 +11,38 @@ spring:
       max-lifetime: 1200000
       leak-detection-threshold: 60000
       validation-timeout: 5000
-    
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+    defer-datasource-initialization: false
     hibernate:
-      ddl-auto: create-drop
-    show-sql: true
+      ddl-auto: validate
+      jdbc:
+        batch_size: 50
+        order_inserts: true
+        order_updates: true
+      connection:
+        provider_disables_autocommit: true
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         use_sql_comments: true
         hbm2ddl:
           auto: create-drop
-    defer-datasource-initialization: false
-    
+
   sql:
     init:
       mode: never
+
+  main:
+    lazy-initialization: false
+
+server:
+  port: ${PORT:8080}
+  tomcat:
+    connection-timeout: 20000
+    keep-alive-timeout: 30000
 
 debug: true
 
@@ -46,9 +61,6 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
   config: classpath:logback-spring.xml
-    
-server:
-  port: ${PORT:8080}
 
 management:
   endpoints:

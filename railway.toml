@@ -1,0 +1,7 @@
+[build]
+builder = "dockerfile"
+
+[deploy]
+healthcheckPath = "/actuator/health"
+healthcheckTimeout = 600
+startCommand = "java -jar target/financeiro-api-simple-1.0.0.jar"
