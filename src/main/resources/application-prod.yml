@@ -37,7 +37,11 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     com.example: DEBUG
-    root: INFO
+    org.springframework.boot: DEBUG
+    org.springframework.context: DEBUG
+    org.springframework.beans: DEBUG
+    org.hibernate: DEBUG
+    root: DEBUG
     
 server:
   port: ${PORT:8080}
