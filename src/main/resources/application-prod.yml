@@ -1,79 +1,111 @@
 # application-prod.yml - Production Configuration
+# Compatible with Railway and Docker deployments
+
 spring:
   application:
     name: financeiro-api-simple
-    
-  # PostgreSQL Database
+
+  # Database Configuration (Railway + Docker)
   datasource:
-    url: ${DATABASE_URL}
+    # Railway uses DATABASE_URL, Docker uses individual vars
+    url: ${DATABASE_URL:jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:financeiro_api}?sslmode=require}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:your_password}
     driver-class-name: org.postgresql.Driver
+    
+    # Connection pool settings
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      max-lifetime: 1200000
       connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      
+
+  # JPA/Hibernate Configuration
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: false
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+    show-sql: ${SPRING_JPA_SHOW_SQL:false}
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
+        use_sql_comments: false
         jdbc:
-          lob:
-            non_contextual_creation: true
-        
-  sql:
-    init:
-      mode: never
+          batch_size: 25
+          order_inserts: true
+          order_updates: true
+        cache:
+          use_second_level_cache: false
+
+  # Redis Configuration (Optional)
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
+# Server Configuration
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+  tomcat:
+    max-threads: 200
+    accept-count: 100
 
 # JWT Configuration
-app:
-  jwt:
-    secret: ${JWT_SECRET}
-    expiration: ${JWT_EXPIRATION:86400000}
-    
-  security:
-    cors:
-      allowed-origins: "*"
-      allowed-methods: 
-        - GET
-        - POST
-        - PUT
-        - DELETE
-        - OPTIONS
-      allowed-headers: "*"
-      allow-credentials: false
+jwt:
+  secret: ${JWT_SECRET:61W/17klzB03GlgWumPfAYsmDdXWDhejcRXMCL6KaYg3YNt0o8IY/ckZg8u/MtgD3xL61vBPE1chMk8TGbpGhA==}
+  expiration: ${JWT_EXPIRATION:86400000}
 
-# Actuator for health checks
+# Logging Configuration
+logging:
+  level:
+    root: ${LOG_LEVEL:INFO}
+    com.example.azure_sql_demo: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Actuator Configuration
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics
+      base-path: /actuator
   endpoint:
     health:
       show-details: when-authorized
-      
-# Server Configuration
-server:
-  port: ${PORT:8080}
-  compression:
-    enabled: true
-  error:
-    include-stacktrace: never
-    include-message: always
+      show-components: always
+  info:
+    env:
+      enabled: true
+    git:
+      mode: full
 
-# Logging
-logging:
-  level:
-    com.example.azure_sql_demo: INFO
-    org.springframework.security: WARN
-    org.hibernate: WARN
-    org.springframework.web: WARN
-    root: INFO
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+# Application Info
+info:
+  application:
+    name: Pedro's Financial Enterprise API
+    description: Spring Boot Financial Management System
+    version: 1.0.0
+    environment: ${ENVIRONMENT:Production}
+
+# Spring Boot Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true

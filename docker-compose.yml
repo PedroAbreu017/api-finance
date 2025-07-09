@@ -1,58 +1,107 @@
 
 services:
-  redis:
-    image: redis:latest
-    container_name: redis-server
+  # PostgreSQL Database (Production Ready)
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres-finance
     ports:
-      - "6379:6379"
-    command: redis-server --bind 0.0.0.0 --protected-mode no
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-financeiro_api}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres123}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
-      - spring-redis-network
+      - finance-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-financeiro_api}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Redis Cache (Optional - for future features)
+  redis:
+    image: redis:7-alpine
+    container_name: redis-finance
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis123}
+    volumes:
+      - redis_data:/data
+    networks:
+      - finance-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD:-redis123}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 3
+    restart: unless-stopped
 
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sql-server
-    ports:
-      - "1433:1433"
-    environment:
-      SA_PASSWORD: "YourStrong@Passw0rd"
-      ACCEPT_EULA: "Y"
-    networks:
-      - spring-redis-network
-    healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q 'SELECT 1'"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  app:
-    build: 
+  # Finance API Application
+  api:
+    build:
       context: .
       dockerfile: Dockerfile
-    container_name: spring-app
+    container_name: finance-api
     ports:
-      - "8080:8080"
+      - "${API_PORT:-8080}:8080"
     environment:
-      # PROPERTIES CORRETAS PARA SPRING BOOT 3.2.0
-      - SPRING_DATA_REDIS_HOST=redis-server
-      - SPRING_DATA_REDIS_PORT=6379
-      - SPRING_DATASOURCE_URL=jdbc:sqlserver://sql-server:1433;databaseName=azure_sql_demo;encrypt=false;trustServerCertificate=true;
-      - SPRING_DATASOURCE_USERNAME=sa
-      - SPRING_DATASOURCE_PASSWORD=YourStrong@Passw0rd
-      - SPRING_PROFILES_ACTIVE=docker
+      # Spring Boot Configuration
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+      SERVER_PORT: 8080
+      
+      # Database Configuration
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-financeiro_api}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres123}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      
+      # JPA/Hibernate Configuration
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${JPA_DDL_AUTO:-update}
+      SPRING_JPA_SHOW_SQL: ${JPA_SHOW_SQL:-false}
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      
+      # Redis Configuration (Optional)
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD:-redis123}
+      
+      # JWT Configuration
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      
+      # JVM Options
+      JAVA_OPTS: ${JAVA_OPTS:--XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC}
+      
     depends_on:
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
-      sqlserver:
-        condition: service_healthy
     networks:
-      - spring-redis-network
+      - finance-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    
+    # Development volume mounts (override in prod)
+    volumes:
+      - ./logs:/app/logs
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
 
 networks:
-  spring-redis-network:
-    external: true
+  finance-network:
+    driver: bridge
