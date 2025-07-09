@@ -1,112 +1,52 @@
-# application-prod.yml - Production Configuration
-# Railway PostgreSQL Compatible with Timeout
-
 spring:
-  application:
-    name: financeiro-api-simple
-
-  # Database Configuration - Railway PostgreSQL with Timeout
   datasource:
     url: ${DATABASE_URL}
-    username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:your_password}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
-    
-    # Connection pool settings with timeout
     hikari:
-      connection-timeout: 20000          # 20 segundos
-      initialization-fail-timeout: 1     # Falha rápida se não conectar
-      maximum-pool-size: 5               # Menos conexões
-      minimum-idle: 1                    # Mínimo de conexões
-      idle-timeout: 300000               # 5 minutos
-      max-lifetime: 1200000              # 20 minutos
-      leak-detection-threshold: 60000    # Detectar vazamentos
-
-  # JPA/Hibernate Configuration
+      connection-timeout: 20000
+      initialization-fail-timeout: 1
+      maximum-pool-size: 5
+      minimum-idle: 1
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      leak-detection-threshold: 60000
+  
   jpa:
-    hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
-    show-sql: ${SPRING_JPA_SHOW_SQL:false}
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: false
-        use_sql_comments: false
-        jdbc:
-          batch_size: 25
-          order_inserts: true
-          order_updates: true
-        cache:
-          use_second_level_cache: false
+        format_sql: true
+        use_sql_comments: true
     defer-datasource-initialization: true
-
-  # SQL initialization
+    
   sql:
     init:
       mode: always
       continue-on-error: true
+      platform: postgresql
 
-# Server Configuration
-server:
-  port: ${PORT:8080}
-  shutdown: graceful
-  tomcat:
-    max-threads: 200
-    accept-count: 100
-    connection-timeout: 20000
-
-# JWT Configuration
-jwt:
-  secret: ${JWT_SECRET:61W/17klzB03GlgWumPfAYsmDdXWDhejcRXMCL6KaYg3YNt0o8IY/ckZg8u/MtgD3xL61vBPE1chMk8TGbpGhA==}
-  expiration: ${JWT_EXPIRATION:86400000}
-
-# Logging Configuration
 logging:
   level:
-    root: ${LOG_LEVEL:INFO}
-    com.example.azure_sql_demo: INFO
-    org.springframework.security: WARN
-    org.hibernate.SQL: WARN
-    org.hibernate.type.descriptor.sql.BasicBinder: WARN
     com.zaxxer.hikari: DEBUG
     org.springframework.jdbc: DEBUG
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.example: DEBUG
+    root: INFO
+    
+server:
+  port: ${PORT:8080}
 
-# Actuator Configuration
 management:
   endpoints:
     web:
       exposure:
         include: health,info,metrics
-      base-path: /actuator
   endpoint:
     health:
       show-details: always
-      show-components: always
-  info:
-    env:
-      enabled: true
-  health:
-    db:
-      enabled: true
-    diskspace:
-      enabled: true
-
-# Application Info
-info:
-  application:
-    name: Pedro's Financial Enterprise API
-    description: Spring Boot Financial Management System
-    version: 1.0.0
-    environment: ${ENVIRONMENT:Production}
-
-# Spring Boot Configuration
-springdoc:
-  api-docs:
-    path: /api-docs
-  swagger-ui:
-    path: /swagger-ui.html
-    enabled: true
