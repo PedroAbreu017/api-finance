@@ -1,14 +1,14 @@
 # application-prod.yml - Production Configuration
-# Compatible with Railway and Docker deployments
+# Railway PostgreSQL Compatible
 
 spring:
   application:
     name: financeiro-api-simple
 
-  # Database Configuration (Railway + Docker)
+  # Database Configuration - Railway PostgreSQL
   datasource:
-    # Railway uses DATABASE_URL, Docker uses individual vars
-    url: ${DATABASE_URL:jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:financeiro_api}?sslmode=require}
+    # Use Railway DATABASE_URL directly
+    url: ${DATABASE_URL}
     username: ${POSTGRES_USER:postgres}
     password: ${POSTGRES_PASSWORD:your_password}
     driver-class-name: org.postgresql.Driver
