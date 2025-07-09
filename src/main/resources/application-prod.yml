@@ -1,25 +1,26 @@
 # application-prod.yml - Production Configuration
-# Railway PostgreSQL Compatible
+# Railway PostgreSQL Compatible with Timeout
 
 spring:
   application:
     name: financeiro-api-simple
 
-  # Database Configuration - Railway PostgreSQL
+  # Database Configuration - Railway PostgreSQL with Timeout
   datasource:
-    # Use Railway DATABASE_URL directly
     url: ${DATABASE_URL}
     username: ${POSTGRES_USER:postgres}
     password: ${POSTGRES_PASSWORD:your_password}
     driver-class-name: org.postgresql.Driver
     
-    # Connection pool settings
+    # Connection pool settings with timeout
     hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-      idle-timeout: 300000
-      max-lifetime: 1200000
-      connection-timeout: 30000
+      connection-timeout: 20000          # 20 segundos
+      initialization-fail-timeout: 1     # Falha rápida se não conectar
+      maximum-pool-size: 5               # Menos conexões
+      minimum-idle: 1                    # Mínimo de conexões
+      idle-timeout: 300000               # 5 minutos
+      max-lifetime: 1200000              # 20 minutos
+      leak-detection-threshold: 60000    # Detectar vazamentos
 
   # JPA/Hibernate Configuration
   jpa:
@@ -38,19 +39,13 @@ spring:
           order_updates: true
         cache:
           use_second_level_cache: false
+    defer-datasource-initialization: true
 
-  # Redis Configuration (Optional)
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
-      timeout: 2000ms
-      lettuce:
-        pool:
-          max-active: 8
-          max-idle: 8
-          min-idle: 0
+  # SQL initialization
+  sql:
+    init:
+      mode: always
+      continue-on-error: true
 
 # Server Configuration
 server:
@@ -59,6 +54,7 @@ server:
   tomcat:
     max-threads: 200
     accept-count: 100
+    connection-timeout: 20000
 
 # JWT Configuration
 jwt:
@@ -73,6 +69,8 @@ logging:
     org.springframework.security: WARN
     org.hibernate.SQL: WARN
     org.hibernate.type.descriptor.sql.BasicBinder: WARN
+    com.zaxxer.hikari: DEBUG
+    org.springframework.jdbc: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
@@ -86,13 +84,16 @@ management:
       base-path: /actuator
   endpoint:
     health:
-      show-details: when-authorized
+      show-details: always
       show-components: always
   info:
     env:
       enabled: true
-    git:
-      mode: full
+  health:
+    db:
+      enabled: true
+    diskspace:
+      enabled: true
 
 # Application Info
 info:
