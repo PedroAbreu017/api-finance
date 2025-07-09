@@ -1,7 +1,0 @@
-spring: 
-  application: 
-    name: azure-sql-demo 
-  profiles: 
-    active: local 
-server: 
-  port: 8080 
