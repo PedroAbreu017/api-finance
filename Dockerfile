@@ -1,11 +1,10 @@
-# Dockerfile - Production Ready Multi-stage
 # Build stage
 FROM eclipse-temurin:17-jdk-slim AS builder
 
 WORKDIR /app
 COPY . .
 
-# Build the application (if source is available)
+# Build the application if source is available
 RUN if [ -f "pom.xml" ]; then \
       apt-get update && apt-get install -y maven && \
       mvn clean package -DskipTests && \
@@ -14,8 +13,8 @@ RUN if [ -f "pom.xml" ]; then \
       echo "Using pre-built JAR"; \
     fi
 
-# Runtime stage
-FROM eclipse-temurin:17-jre-slim
+# Runtime stage - CORRIGIDO: usando openjdk em vez de eclipse-temurin
+FROM openjdk:17-jre-slim
 
 # Install essential tools
 RUN apt-get update && \
@@ -36,10 +35,7 @@ RUN groupadd --system --gid 1001 spring && \
 COPY --chown=spring:spring \
     target/financeiro-api-simple-1.0.0.jar app.jar
 
-# Alternatively, copy from builder stage if built
-# COPY --from=builder --chown=spring:spring /app/app.jar app.jar
-
-# Verify JAR
+# Verify JAR exists
 RUN ls -la /app/ && \
     file /app/app.jar && \
     chown spring:spring /app/app.jar
@@ -60,7 +56,7 @@ ENV JAVA_OPTS="-XX:+UseContainerSupport \
                 -XX:+UseG1GC \
                 -XX:+UseStringDeduplication \
                 -Djava.security.egd=file:/dev/./urandom \
-                -Dspring.profiles.active=docker"
+                -Dspring.profiles.active=prod"
 
 # Use dumb-init as PID 1
 ENTRYPOINT ["dumb-init", "--"]
