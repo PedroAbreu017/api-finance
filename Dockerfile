@@ -13,23 +13,18 @@ RUN if [ -f "pom.xml" ]; then \
       echo "Using pre-built JAR"; \
     fi
 
-# Runtime stage - CORRIGIDO: usando openjdk em vez de eclipse-temurin
-FROM openjdk:17-jre-slim
+# Runtime stage - CORRIGIDO: usando amazoncorretto que é mais estável
+FROM amazoncorretto:17-alpine
 
 # Install essential tools
-RUN apt-get update && \
-    apt-get install -y \
-      curl \
-      dumb-init && \
-    rm -rf /var/lib/apt/lists/* && \
-    apt-get clean
+RUN apk add --no-cache curl dumb-init
 
 # Create application directory
 WORKDIR /app
 
-# Create non-root user
-RUN groupadd --system --gid 1001 spring && \
-    useradd --system --uid 1001 --gid spring --shell /bin/bash --create-home spring
+# Create non-root user (Alpine style)
+RUN addgroup -g 1001 -S spring && \
+    adduser -u 1001 -S spring -G spring
 
 # Copy JAR from builder or local
 COPY --chown=spring:spring \
