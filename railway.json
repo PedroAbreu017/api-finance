@@ -5,8 +5,6 @@
   },
   "deploy": {
     "startCommand": "java -Dserver.port=$PORT -Dspring.profiles.active=prod -jar target/financeiro-api-simple-1.0.0.jar",
-    "healthcheckPath": "/actuator/health",
-    "healthcheckTimeout": 100,
-    "restartPolicyType": "ON_FAILURE"
+    "healthcheckPath": "/actuator/health"
   }
 }
