@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "java -Dserver.port=$PORT -Dspring.profiles.active=prod -jar target/financeiro-api-simple-1.0.0.jar",
+    "startCommand": "java -Dserver.port=$PORT -Dspring.profiles.active=local -jar target/financeiro-api-simple-1.0.0.jar",
     "healthcheckPath": "/actuator/health"
   }
 }
