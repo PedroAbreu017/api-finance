@@ -1,31 +1,27 @@
 spring:
   datasource:
-    url: ${DATABASE_URL}
+    url: ${SPRING_DATASOURCE_URL:${DATABASE_URL}}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
-      connection-timeout: 30000
+      connection-timeout: 60000
       initialization-fail-timeout: 0
-      maximum-pool-size: 5
+      maximum-pool-size: 3
       minimum-idle: 1
-      idle-timeout: 300000
       
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
-    show-sql: false
+    show-sql: true
     properties:
       hibernate:
-        format_sql: false
-        jdbc:
-          time_zone: UTC
-    open-in-view: false
+        format_sql: true
 
 # Server configuration
 server:
   port: ${PORT:8080}
-  error:
-    include-message: always
 
 # Management endpoints (para health check)
 management:
@@ -38,16 +34,12 @@ management:
     health:
       enabled: true
       show-details: always
-  health:
-    probes:
-      enabled: true
 
-# Logging configuration
+# Logging configuration  
 logging:
   level:
-    com.example: INFO
-    org.springframework.web: INFO
-    org.hibernate.SQL: WARN
-    org.hibernate.type.descriptor.sql.BasicBinder: WARN
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    root: INFO
+    com.example: DEBUG
+    org.springframework.boot.autoconfigure.jdbc: DEBUG
+    com.zaxxer.hikari: DEBUG
+    org.hibernate.SQL: DEBUG
