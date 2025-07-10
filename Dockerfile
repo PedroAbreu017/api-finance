@@ -1,9 +1,9 @@
-FROM amazoncorretto:17
+FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
 # Install curl for health checks
-RUN yum update -y && yum install -y curl && yum clean all
+RUN apk add --no-cache curl
 
 # Copy the JAR file
 COPY target/financeiro-api-simple-1.0.0.jar app.jar
