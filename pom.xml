@@ -152,13 +152,15 @@
     </dependencies>
     
     <build>
+        <finalName>financeiro-api-simple</finalName>
         <plugins>
             <!-- Spring Boot Maven Plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.example.azure_sql_demo.AzureSqlDemoApplication</mainClass>
+                    <mainClass>com.example.financeiro.FinanceiroApiSimpleApplication</mainClass>
+                    <executable>true</executable>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
