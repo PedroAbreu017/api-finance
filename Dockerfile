@@ -1,35 +1,42 @@
-FROM eclipse-temurin:17-jdk-alpine
+# Build stage
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
-# Install Maven
-RUN apk add --no-cache maven
-
-# Copy source files
+# Copy pom.xml first for better caching
 COPY pom.xml .
+
+# Download dependencies
+RUN mvn dependency:go-offline -B
+
+# Copy source code
 COPY src ./src
 
 # Build the application
 RUN mvn clean package -DskipTests
 
-# Check what JAR was created and move it
-RUN echo "=== Checking JAR files ===" && \
+# Debug: Check what was actually created
+RUN echo "=== Contents of target directory ===" && \
     ls -la target/ && \
-    mv target/azure-sql-demo.jar app.jar && \
-    echo "JAR moved successfully: $(ls -lh app.jar)"
+    echo "=== Looking for JAR files ===" && \
+    find target/ -name "*.jar" -type f
 
-# Clean up to reduce image size
-RUN rm -rf target/ ~/.m2/repository src pom.xml && \
-    echo "=== Final Check ===" && \
-    ls -la /app/ && \
-    echo "JAR ready to run!"
+# Runtime stage
+FROM eclipse-temurin:17-jre
 
-# Expose port
-EXPOSE $PORT
+WORKDIR /app
 
-# Environment variables
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC"
-ENV SPRING_PROFILES_ACTIVE=prod
+# Copy any JAR file from target directory
+COPY --from=build /app/target/*.jar app.jar
 
-# Run the application
-CMD java $JAVA_OPTS -Dserver.port=${PORT:-8080} -jar /app/app.jar
+# Create non-root user for security
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+RUN chown appuser:appuser /app/app.jar
+USER appuser
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8080/actuator/health || exit 1
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
