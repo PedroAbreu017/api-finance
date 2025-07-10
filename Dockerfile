@@ -21,13 +21,18 @@ RUN echo "=== Contents of target directory ===" && \
     echo "=== Looking for JAR files ===" && \
     find target/ -name "*.jar" -type f
 
+# Find and copy the JAR with any name
+RUN JAR_FILE=$(find target/ -name "*.jar" -not -name "*sources*" -not -name "*javadoc*" | head -1) && \
+    echo "Found JAR: $JAR_FILE" && \
+    cp "$JAR_FILE" app.jar
+
 # Runtime stage
 FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
-# Copy any JAR file from target directory
-COPY --from=build /app/target/*.jar app.jar
+# Copy the JAR file
+COPY --from=build /app/app.jar app.jar
 
 # Create non-root user for security
 RUN groupadd -r appuser && useradd -r -g appuser appuser
