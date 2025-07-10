@@ -5,8 +5,8 @@ WORKDIR /app
 # Install curl for health checks
 RUN apk add --no-cache curl
 
-# Copy the JAR file
-COPY target/financeiro-api-simple-1.0.0.jar app.jar
+# Copy the JAR file from root directory
+COPY app.jar app.jar
 
 # Expose port
 EXPOSE 8080
