@@ -1,8 +1,6 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:${DATABASE_URL}}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
     driver-class-name: org.postgresql.Driver
     hikari:
       connection-timeout: 60000
@@ -14,10 +12,10 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
 
 # Server configuration
 server:
@@ -39,7 +37,5 @@ management:
 logging:
   level:
     root: INFO
-    com.example: DEBUG
-    org.springframework.boot.autoconfigure.jdbc: DEBUG
-    com.zaxxer.hikari: DEBUG
-    org.hibernate.SQL: DEBUG
+    com.example: INFO
+    org.springframework: INFO
