@@ -45,7 +45,7 @@ management:
 # Logging configuration
 logging:
   level:
-    com.financeiro: INFO
+    com.example: INFO
     org.springframework.web: INFO
     org.hibernate.SQL: WARN
     org.hibernate.type.descriptor.sql.BasicBinder: WARN
