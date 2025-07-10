@@ -5,7 +5,7 @@ spring:
     hikari:
       connection-timeout: 30000
       initialization-fail-timeout: 0
-      maximum-pool-size: 2
+      maximum-pool-size: 5
       minimum-idle: 1
       idle-timeout: 300000
       max-lifetime: 1200000
@@ -17,7 +17,7 @@ spring:
     show-sql: false
     defer-datasource-initialization: false
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
       jdbc:
         batch_size: 50
         order_inserts: true
@@ -27,9 +27,10 @@ spring:
     properties:
       hibernate:
         format_sql: false
-        use_sql_comments: true
-        hbm2ddl:
-          auto: create-drop
+        use_sql_comments: false
+        # Remove hbm2ddl auto config que estava conflitando
+        jdbc:
+          time_zone: UTC
 
   sql:
     init:
@@ -44,23 +45,20 @@ server:
     connection-timeout: 20000
     keep-alive-timeout: 30000
 
-debug: true
-
+# Reduzir logs para Railway
 logging:
   level:
-    com.zaxxer.hikari: DEBUG
-    org.springframework.jdbc: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    com.example: DEBUG
-    org.springframework.boot: DEBUG
-    org.springframework.context: DEBUG
-    org.springframework.beans: DEBUG
-    org.hibernate: DEBUG
-    root: DEBUG
+    com.zaxxer.hikari: INFO
+    org.springframework.jdbc: INFO
+    org.hibernate.SQL: INFO
+    com.example: INFO
+    org.springframework.boot: INFO
+    org.springframework.context: INFO
+    org.springframework.beans: INFO
+    org.hibernate: INFO
+    root: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-  config: classpath:logback-spring.xml
 
 management:
   endpoints:
@@ -70,3 +68,5 @@ management:
   endpoint:
     health:
       show-details: always
+  server:
+    port: ${PORT:8080}
