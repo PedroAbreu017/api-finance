@@ -55,6 +55,13 @@
             <scope>runtime</scope>
         </dependency>
         
+        <!-- PostgreSQL Driver for Railway -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -142,6 +149,7 @@
     </dependencies>
 
     <build>
+        <finalName>azure-sql-demo</finalName>
         <plugins>
             <!-- Spring Boot Maven Plugin -->
             <plugin>
