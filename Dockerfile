@@ -2,42 +2,47 @@ FROM eclipse-temurin:17-jdk-alpine
 
 WORKDIR /app
 
-# Install Maven and curl
+# Install Maven and debugging tools
 RUN apk add --no-cache maven curl netcat-openbsd
 
 # Copy source files
 COPY pom.xml .
 COPY src ./src
 
-# Build the application
-RUN mvn clean package -DskipTests
+# Build the application with verbose output
+RUN echo "=== Starting Maven Build ===" && \
+    mvn clean package -DskipTests -q && \
+    echo "=== Build completed ==="
 
-# Move JAR to predictable location
-RUN mv target/financeiro-api-simple-1.0.0.jar app.jar
+# Check if JAR was created and move it
+RUN echo "=== Checking for JAR file ===" && \
+    ls -la target/ && \
+    if [ -f "target/financeiro-api-simple-1.0.0.jar" ]; then \
+        cp target/financeiro-api-simple-1.0.0.jar app.jar && \
+        echo "JAR copied successfully"; \
+    else \
+        echo "ERROR: JAR not found, looking for any JAR files..." && \
+        find target -name "*.jar" -type f && \
+        JAR_FILE=$(find target -name "*.jar" -not -name "*sources*" -not -name "*javadoc*" | head -1) && \
+        if [ -f "$JAR_FILE" ]; then \
+            cp "$JAR_FILE" app.jar && \
+            echo "Alternative JAR copied: $JAR_FILE"; \
+        else \
+            echo "FATAL: No JAR file found!" && \
+            exit 1; \
+        fi; \
+    fi
 
-# Expose port (Railway will set $PORT)
-EXPOSE $PORT
+# Verify the JAR file exists
+RUN ls -la app.jar
 
-# Environment variables optimized for Railway
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -Xms256m"
+# Environment variables
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 ENV SPRING_PROFILES_ACTIVE=prod
 
-# Create startup script with better error handling
-RUN echo '#!/bin/sh' > /app/start.sh && \
-    echo 'echo "=== Railway Startup Debug ==="' >> /app/start.sh && \
-    echo 'echo "PORT: $PORT"' >> /app/start.sh && \
-    echo 'echo "DATABASE_URL: ${DATABASE_URL:NOT_SET}"' >> /app/start.sh && \
-    echo 'echo "SPRING_PROFILES_ACTIVE: $SPRING_PROFILES_ACTIVE"' >> /app/start.sh && \
-    echo 'echo "=== Testing Database Connection ==="' >> /app/start.sh && \
-    echo 'if [ -n "$DATABASE_URL" ]; then' >> /app/start.sh && \
-    echo '  echo "Database URL is configured"' >> /app/start.sh && \
-    echo 'else' >> /app/start.sh && \
-    echo '  echo "ERROR: DATABASE_URL not set!"' >> /app/start.sh && \
-    echo '  exit 1' >> /app/start.sh && \
-    echo 'fi' >> /app/start.sh && \
-    echo 'echo "=== Starting Application ==="' >> /app/start.sh && \
-    echo 'exec java $JAVA_OPTS -Dserver.port=$PORT -jar app.jar' >> /app/start.sh && \
-    chmod +x /app/start.sh
-
-# Run the startup script
-CMD ["/app/start.sh"]
+# Simple and direct startup command
+CMD echo "=== Railway Startup ===" && \
+    echo "PORT: $PORT" && \
+    echo "DATABASE_URL: ${DATABASE_URL:0:50}..." && \
+    echo "Starting application..." && \
+    java $JAVA_OPTS -Dserver.port=${PORT:-8080} -jar app.jar
