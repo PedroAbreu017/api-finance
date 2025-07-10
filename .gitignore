@@ -1,8 +1,12 @@
 # Maven
 target/
 *.class
-*.jar
+# *.jar  <-- REMOVIDO: não excluir JARs para permitir o JAR principal
 *.war
+
+# Mas podemos excluir JARs específicos se necessário:
+# *-sources.jar
+# *-javadoc.jar
 
 # Wrapper
 .mvn/
