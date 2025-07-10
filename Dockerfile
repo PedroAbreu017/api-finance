@@ -18,20 +18,21 @@ RUN echo "=== Starting Maven Build ===" && \
 RUN echo "=== Checking for JAR file ===" && \
     ls -la target/ && \
     if [ -f "target/financeiro-api-simple-1.0.0.jar" ]; then \
-        cp target/financeiro-api-simple-1.0.0.jar app.jar && \
-        echo "JAR copied successfully"; \
+        mv target/financeiro-api-simple-1.0.0.jar app.jar && \
+        echo "JAR moved successfully"; \
     else \
         echo "ERROR: JAR not found, looking for any JAR files..." && \
         find target -name "*.jar" -type f && \
         JAR_FILE=$(find target -name "*.jar" -not -name "*sources*" -not -name "*javadoc*" | head -1) && \
         if [ -f "$JAR_FILE" ]; then \
-            cp "$JAR_FILE" app.jar && \
-            echo "Alternative JAR copied: $JAR_FILE"; \
+            mv "$JAR_FILE" app.jar && \
+            echo "Alternative JAR moved: $JAR_FILE"; \
         else \
             echo "FATAL: No JAR file found!" && \
             exit 1; \
         fi; \
-    fi
+    fi && \
+    rm -rf target/
 
 # Verify the JAR file exists
 RUN ls -la app.jar

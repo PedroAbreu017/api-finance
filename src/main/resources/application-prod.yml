@@ -8,65 +8,46 @@ spring:
       maximum-pool-size: 5
       minimum-idle: 1
       idle-timeout: 300000
-      max-lifetime: 1200000
-      leak-detection-threshold: 60000
-      validation-timeout: 5000
-
+      
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: false
-    defer-datasource-initialization: false
     hibernate:
       ddl-auto: update
-      jdbc:
-        batch_size: 50
-        order_inserts: true
-        order_updates: true
-      connection:
-        provider_disables_autocommit: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: false
-        use_sql_comments: false
-        # Remove hbm2ddl auto config que estava conflitando
         jdbc:
           time_zone: UTC
+    open-in-view: false
 
-  sql:
-    init:
-      mode: never
-
-  main:
-    lazy-initialization: false
-
+# Server configuration
 server:
   port: ${PORT:8080}
-  tomcat:
-    connection-timeout: 20000
-    keep-alive-timeout: 30000
+  error:
+    include-message: always
 
-# Reduzir logs para Railway
-logging:
-  level:
-    com.zaxxer.hikari: INFO
-    org.springframework.jdbc: INFO
-    org.hibernate.SQL: INFO
-    com.example: INFO
-    org.springframework.boot: INFO
-    org.springframework.context: INFO
-    org.springframework.beans: INFO
-    org.hibernate: INFO
-    root: INFO
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-
+# Management endpoints (para health check)
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info
+      base-path: /actuator
   endpoint:
     health:
+      enabled: true
       show-details: always
-  server:
-    port: ${PORT:8080}
+  health:
+    probes:
+      enabled: true
+
+# Logging configuration
+logging:
+  level:
+    com.financeiro: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
