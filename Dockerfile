@@ -15,12 +15,6 @@ COPY src ./src
 # Build the application
 RUN mvn clean package -DskipTests
 
-# Debug: Check what was actually created
-RUN echo "=== Contents of target directory ===" && \
-    ls -la target/ && \
-    echo "=== Looking for JAR files ===" && \
-    find target/ -name "*.jar" -type f
-
 # Find and copy the JAR with any name
 RUN JAR_FILE=$(find target/ -name "*.jar" -not -name "*sources*" -not -name "*javadoc*" | head -1) && \
     echo "Found JAR: $JAR_FILE" && \
@@ -41,7 +35,7 @@ USER appuser
 
 EXPOSE 8080
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8080/actuator/health || exit 1
+ENV SPRING_PROFILES_ACTIVE=prod
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# FORÇA a usar a porta do Render através de argumentos JVM
+ENTRYPOINT ["sh", "-c", "java -Dserver.port=${PORT:-8080} -jar app.jar"]
