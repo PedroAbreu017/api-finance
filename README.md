@@ -1,214 +1,250 @@
-🏦 Enterprise Financial Management API
-Sistema completo de gestão financeira empresarial, desenvolvido com Spring Boot, autenticação JWT, auditoria e arquitetura escalável.
+# Enterprise Financial Management API
 
+> **Sistema completo de gestão financeira empresarial** desenvolvido com Spring Boot, autenticação JWT, auditoria e arquitetura enterprise-ready.
 
+[![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Enabled-blue.svg)](https://www.docker.com/)
+[![Swagger](https://img.shields.io/badge/API-Documented-green.svg)](https://swagger.io/)
 
+## Demo & Links
 
+- **API Live**: [https://api-finance-s8rh.onrender.com](https://api-finance-s8rh.onrender.com)
+- **Documentação Interativa**: [https://api-finance-s8rh.onrender.com/swagger-ui.html](https://api-finance-s8rh.onrender.com/swagger-ui.html)
+- **Health Check**: [https://api-finance-s8rh.onrender.com/actuator/health](https://api-finance-s8rh.onrender.com/actuator/health)
+- **Repositório**: [GitHub](https://github.com/PedroAbreu017/api-finance)
 
+---
 
+## Sobre o Projeto
 
-🌐 Demo & Links
-🚀 API Live: https://api-finance-xxx.onrender.com
+Sistema empresarial de **gestão financeira** com recursos avançados de segurança, auditoria e monitoramento. Desenvolvido seguindo **boas práticas enterprise** e **arquitetura escalável**.
 
-📚 Documentação Swagger: https://api-finance-xxx.onrender.com/swagger-ui.html
+### Principais Diferenciais
 
-📈 Health Check: https://api-finance-xxx.onrender.com/actuator/health
+- **Autenticação JWT** completa com refresh tokens
+- **Autorização baseada em roles** (RBAC)
+- **Sistema de auditoria** completo
+- **Gestão de contas e transações** financeiras
+- **Transferências** entre contas
+- **Monitoramento** com Spring Actuator
+- **Documentação automática** com Swagger
+- **Cache Redis** para performance
+- **Containerização** completa
 
-📂 Repositório GitHub: PedroAbreu017/api-finance
+---
 
-🎯 Sobre o Projeto
-Sistema de gestão financeira com foco em segurança, auditoria, escalabilidade e monitoramento, seguindo padrões de desenvolvimento corporativo.
+## Arquitetura & Tecnologias
 
-💡 Diferenciais
-🔐 Autenticação JWT com refresh tokens
-
-🛡️ Autorização RBAC (User/Admin)
-
-📋 Auditoria de todas as operações
-
-💰 Gestão de contas e transações
-
-🔄 Transferências entre contas
-
-📊 Monitoramento com Spring Actuator
-
-⚡ Cache Redis para performance
-
-🐳 Totalmente containerizado com Docker
-
-🏗️ Arquitetura & Tecnologias
-text
-Copy
-Edit
-Java 17 + Spring Boot 3.2
-PostgreSQL (produção) | H2 (dev)
+### Backend Stack
+Java 17 + Spring Boot 3.2.0
+PostgreSQL (Produção) | H2 (Desenvolvimento)
 Spring Security + JWT
-Redis (cache)
-Spring Actuator (monitoramento)
-JUnit + TestContainers
+Redis (Cache)
+Spring Actuator (Monitoring)
+JUnit + Spring Boot Test
 Swagger/OpenAPI 3
 Docker + Docker Compose
-🔧 Desenvolvimento Local
-Pré-requisitos
-Java 17+
 
-Maven 3.8+
+### Funcionalidades Principais
 
-Docker & Docker Compose
+#### Sistema de Autenticação
+- Registro de usuários com validação
+- Login/logout com JWT
+- Refresh token automático
+- Autorização baseada em roles (USER, ADMIN)
+- Gerenciamento de perfis
 
-bash
-Copy
-Edit
-# 1. Clone o projeto
+#### Gestão Financeira
+- **Contas**: Criação, consulta e gerenciamento
+- **Transações**: Depósitos, saques e consultas
+- **Transferências**: Entre contas com validação
+- **Histórico**: Consulta paginada de transações
+- **Auditoria**: Log completo de todas as operações
+
+#### Gestão de Produtos (Módulo Adicional)
+- CRUD completo de produtos
+- Estatísticas e relatórios
+- Controle de estoque
+- Auditoria de alterações
+
+---
+
+## Começando
+
+### Pré-requisitos
+- Java 17+
+- Maven 3.8+
+- Docker & Docker Compose (opcional)
+
+### Desenvolvimento Local
+
+```bash
+# 1. Clone o repositório
 git clone https://github.com/PedroAbreu017/api-finance.git
 cd api-finance
 
-# 2. Execute em modo dev (H2 embutido)
+# 2. Execute com perfil local (H2)
 mvn spring-boot:run
 
-# Acesse:
-# http://localhost:8080/swagger-ui.html
-# http://localhost:8080/h2-console
-🐳 Com Docker
-bash
-Copy
-Edit
-# Ambiente dev com PostgreSQL + Redis
+# 3. Acesse a aplicação
+# API: http://localhost:8080
+# Swagger: http://localhost:8080/swagger-ui.html
+# H2 Console: http://localhost:8080/h2-console
+Execução com Docker
+bash# Desenvolvimento com PostgreSQL + Redis
 docker-compose up -d
 
-# Para produção:
+# Produção
 docker-compose -f docker-compose.prod.yml up -d
-🔐 Autenticação
-Método	Endpoint	Descrição
-POST	/api/auth/register	Registro
-POST	/api/auth/login	Login
-POST	/api/auth/refresh	Refresh token
-POST	/api/auth/logout	Logout
 
-💰 Gestão de Contas
-Método	Endpoint	Descrição
-GET	/api/accounts	Listar contas
-POST	/api/accounts	Criar conta
-GET	/api/accounts/{id}	Ver detalhes
-POST	/api/accounts/{id}/deposit	Depositar
-POST	/api/accounts/{id}/withdraw	Sacar
+Endpoints da API
+Autenticação
+httpPOST   /api/auth/register    # Registro de usuário
+POST   /api/auth/login       # Login
+POST   /api/auth/refresh     # Refresh token
+POST   /api/auth/logout      # Logout
+Usuários
+httpGET    /api/users           # Listar usuários (Admin)
+GET    /api/users/profile   # Perfil do usuário
+PUT    /api/users/profile   # Atualizar perfil
+POST   /api/users/change-password  # Alterar senha
+Contas Financeiras
+httpGET    /api/accounts        # Listar contas do usuário
+POST   /api/accounts        # Criar nova conta
+GET    /api/accounts/{id}   # Detalhes da conta
+POST   /api/accounts/{id}/deposit   # Depósito
+POST   /api/accounts/{id}/withdraw  # Saque
+Transações
+httpGET    /api/transactions    # Histórico de transações
+POST   /api/transactions    # Nova transação
+POST   /api/transactions/transfer  # Transferência entre contas
+GET    /api/transactions/{id}      # Detalhes da transação
+Produtos
+httpGET    /api/products        # Listar produtos
+POST   /api/products        # Criar produto (Admin)
+PUT    /api/products/{id}   # Atualizar produto (Admin)
+DELETE /api/products/{id}   # Excluir produto (Admin)
+GET    /api/products/stats  # Estatísticas (Admin)
+Administração
+httpPOST   /api/admin/load-sample-data     # Carregar dados de teste
+DELETE /api/admin/clear-data          # Limpar dados
+GET    /actuator/health              # Health check
+GET    /actuator/metrics             # Métricas
 
-🔄 Transações
-Método	Endpoint	Descrição
-GET	/api/transactions	Histórico paginado
-POST	/api/transactions	Criar transação
-POST	/api/transactions/transfer	Transferência entre contas
-GET	/api/transactions/{id}	Detalhes da transação
+Segurança
+Autenticação JWT
 
-🛍️ Produtos (Admin)
-Método	Endpoint	Descrição
-GET	/api/products	Listar produtos
-POST	/api/products	Criar produto
-PUT	/api/products/{id}	Atualizar
-DELETE	/api/products/{id}	Excluir
-GET	/api/products/stats	Estatísticas
+Tokens com expiração configurável
+Refresh tokens para sessões longas
+Headers de autorização padrão
 
-⚙️ Administração e Monitoramento
-Método	Endpoint	Descrição
-POST	/api/admin/load-sample-data	Popular base de dados
-DELETE	/api/admin/clear-data	Limpar dados
-GET	/actuator/health	Status da aplicação
-GET	/actuator/metrics	Métricas de sistema
+Autorização RBAC
 
-🔒 Segurança
-JWT com expiração e refresh
+USER: Acesso às próprias contas e transações
+ADMIN: Acesso completo + gerenciamento de produtos
 
-RBAC:
-
-USER: acesso limitado
-
-ADMIN: acesso completo
-
-Exemplo de uso via curl
-bash
-Copy
-Edit
-# Registro
-curl -X POST http://localhost:8080/api/auth/register \
+Exemplo de Uso
+bash# 1. Registrar usuário
+curl -X POST https://api-finance-s8rh.onrender.com/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{"username":"pedro","email":"pedro@email.com","password":"123456"}'
 
-# Login
-curl -X POST http://localhost:8080/api/auth/login \
+# 2. Fazer login
+curl -X POST https://api-finance-s8rh.onrender.com/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"pedro","password":"123456"}'
 
-# Usar token JWT
-curl -X GET http://localhost:8080/api/accounts \
-  -H "Authorization: Bearer SEU_TOKEN_AQUI"
-🗄️ Banco de Dados
-Diagrama simplificado
-sql
-Copy
-Edit
-User
-├── Account
-│   └── FinancialTransaction
-├── Product
-└── AuditLog
-🧪 Testes
-bash
-Copy
-Edit
-# Executar testes unitários
+# 3. Usar token para acessar recursos protegidos
+curl -X GET https://api-finance-s8rh.onrender.com/api/accounts \
+  -H "Authorization: Bearer SEU_JWT_TOKEN"
+
+Banco de Dados
+Modelo de Dados Principal
+User (Usuários)
+├── Account (Contas)
+│   └── FinancialTransaction (Transações)
+├── Product (Produtos)  
+└── AuditLog (Auditoria)
+Configurações por Ambiente
+
+Local: H2 in-memory (desenvolvimento rápido)
+Produção: PostgreSQL (persistência real)
+Docker: PostgreSQL + Redis
+
+
+Monitoramento
+Spring Actuator Endpoints
+GET /actuator/health     # Status da aplicação
+GET /actuator/metrics    # Métricas de performance
+GET /actuator/info       # Informações da aplicação
+Logs de Auditoria
+
+Todas as transações financeiras são auditadas
+Logs incluem: usuário, ação, timestamp, valores
+Rastreabilidade completa para compliance
+
+
+Testes
+bash# Executar todos os testes
 mvn test
 
-# Com cobertura
+# Testes com cobertura
 mvn test jacoco:report
 
 # Testes de integração
 mvn verify
-🚀 Deploy
-Variáveis de ambiente
-env
-Copy
-Edit
-# Banco de Dados
-DATABASE_URL=jdbc:postgresql://host:5432/db
-POSTGRES_USER=usuario
-POSTGRES_PASSWORD=senha
+
+Deploy
+Variáveis de Ambiente (Produção)
+env# Database
+DATABASE_URL=postgresql://user:pass@host:5432/db
+POSTGRES_USER=seu_usuario
+POSTGRES_PASSWORD=sua_senha
 POSTGRES_DB=nome_do_banco
 
 # JWT
-JWT_SECRET=sua_chave_super_secreta
+JWT_SECRET=sua_chave_secreta_jwt_muito_segura
 
 # Redis (opcional)
 REDIS_HOST=localhost
 REDIS_PORT=6379
-REDIS_PASSWORD=senha_redis
+REDIS_PASSWORD=sua_senha_redis
 
-# Configuração geral
+# Server
 PORT=8080
 ENVIRONMENT=production
-📈 Roadmap
- Testes com TestContainers
+Deploy Automático
 
- Painel Admin (UI)
+Render: Deploy automático via GitHub
+Railway: Suporte nativo a PostgreSQL
+Docker: Container pronto para qualquer cloud
 
+
+Roadmap
+
+ Testes automatizados (JUnit + TestContainers)
+ Dashboard administrativo
  Notificações de transações
-
- Suporte a múltiplas moedas
-
+ Multi-moedas
  API para mobile
-
  CI/CD com GitHub Actions
 
-👨‍💻 Desenvolvedor
-Pedro Abreu
-📧 seu.email@example.com
-🔗 linkedin.com/in/pedroabreu
-🐙 github.com/PedroAbreu017
 
-📄 Licença
-Distribuído sob a MIT License.
+Desenvolvedor
+Pedro Marschhausen
+
+Email: pedroabreu6497@gmail.com
+LinkedIn: linkedin.com/in/pedro-marschhausen-2756891b3
+GitHub: github.com/PedroAbreu017
+
+
+Licença
+Este projeto está licenciado sob a MIT License.
 
 <div align="center">
-⭐ Se este projeto te ajudou, deixe uma estrela!
+⭐ Se este projeto foi útil, deixe uma estrela! ⭐
 🚀 Desenvolvido com Java + Spring Boot + ❤️
-
 </div>
+```
